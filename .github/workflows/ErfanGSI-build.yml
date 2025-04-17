@@ -6,7 +6,7 @@ on:
       ROM_URL:
         description: 'Direct link/直链'
         required: true
-        default: 'https://mirrorbits.lineageos.org/full/sagit/20230302/lineage-20.0-20230302-nightly-sagit-signed.zip'
+        default: 'https://bkt-sgp-miui-ota-update-alisgp.oss-ap-southeast-1.aliyuncs.com/21.12.27/miui_EVERGO_21.12.27_afa92d26ca_11.0.zip'
       REPACK_NAME:
         description: 'Compressed name/打包名称'
         required: true
@@ -21,7 +21,7 @@ env:
 
 jobs:
   build_tosasitill_GSI:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: 获取源代码
@@ -34,15 +34,7 @@ jobs:
           echo "BUILD_TIME=$(date +%s | md5sum | awk '{print substr($1,1,10)}')" >> $GITHUB_ENV
           echo "BUILD_sTIME=$(TZ=Asia/Shanghai date -d @$(date +%s) +'%Y-%m-%d %H:%M:%S %Z')" >> $GITHUB_ENV
 
-      - name: 发送 Telegram 提醒消息 1/2
-        uses: appleboy/telegram-action@master
-        with:
-         to: 1214932938
-         token: ${{ secrets.TELEGRAM_TOKEN }}
-         message: tosasitill GSI 开始构建！
-                      构建开始时间：${{ env.BUILD_sTIME }}
-                         提交链接：${{ github.event.inputs.ROM_URL }}
-                             提交 GSI 类型：${{ github.event.inputs.ROM_TYPE }}
+
 
       - name: 配置环境‌‌
         run: |
@@ -51,7 +43,7 @@ jobs:
       - name: 获取 ErfanGSI 工具
         uses: actions/checkout@main
         with:
-          repository: tosasitill/erfanSGSI
+          repository: Kauid/erfanSGSI
           path: ErfanGSIs
 
       - name: 更换 777 权限
@@ -87,14 +79,7 @@ jobs:
           ls upload_ab
           if [ $(ls -l tosasitillGSI0202_${{ github.event.inputs.REPACK_NAME }} | awk '{print $5}') -gt 2147483647 ]; then tar cvzpf - tosasitillGSI0202_${{ github.event.inputs.REPACK_NAME }} | split -d -b 1024m - upload_ab/tosasitillGSI0202_${{ github.event.inputs.REPACK_NAME }}; else mv tosasitillGSI0202_${{ github.event.inputs.REPACK_NAME }} upload_ab/tosasitillGSI0202_${{ github.event.inputs.REPACK_NAME }}; fi
 
-      - name: 发送 Telegram 提醒消息 2/2
-        uses: appleboy/telegram-action@master
-        with:
-            to: 1214932938
-            token: ${{ secrets.TELEGRAM_TOKEN }}
-            message: tosasitill GSI 构建成功!
-              构建 GSI 详细信息如下！
-            document: ${{ github.workspace }}/ErfanGSIs/build_info.txt
+
 
       - name: 上传至 Github Releases
         if: ${{ github.event.inputs.ALI }} != '1'
